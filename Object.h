@@ -16,6 +16,9 @@ class Object : public cSimpleModule{
   long numSent;
   long numReceived;
   long numLost;
+  cLongHistogram hopCountStats;
+  cOutVector hopCountVector;
+
 
   protected:
     virtual MyMessage *generateMessage();
@@ -23,6 +26,7 @@ class Object : public cSimpleModule{
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
     virtual void refreshDisplay() const override;
+    void finish();
 };
 
 

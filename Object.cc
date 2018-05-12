@@ -20,9 +20,17 @@ void Object::initialize()
     numReceived = 0;
     numLost = 0;
 
+    WATCH(numSent);
+    WATCH(numReceived);
+
+    hopCountStats.setName("hopCountStats");
+    hopCountStats.setRangeAutoUpper(0, 10, 1.5);
+    hopCountVector.setName("HopCount");
+
    // Module 0 sends the first message
     if (getId() == 2) {
         MyMessage *msg = generateMessage();
+        numSent++;
         scheduleAt(0.0, msg);
     }
 }
@@ -32,14 +40,21 @@ void Object::handleMessage(cMessage *msg)
     MyMessage *ttmsg = check_and_cast<MyMessage *>(msg);
 
     if (ttmsg->getDestination() == getId()) {
+
         // Message arrived.
+        int hopcount = ttmsg->getHopCount();
         EV << "Message " << ttmsg << " arrived after " << ttmsg->getHopCount() << " hops.\n";
-        bubble("ARRIVED, starting new one!");
+
+        numReceived++;
+        hopCountVector.record(hopcount);
+        hopCountStats.collect(hopcount);
+
         delete ttmsg;
 
         // Generate another one.
         EV << "Generating another message: ";
         MyMessage *newmsg = generateMessage();
+        numSent++;
         EV << newmsg << endl;
         forwardMessage(newmsg);
     }
@@ -54,7 +69,6 @@ MyMessage *Object::generateMessage()
     // Produce source and destination addresses.
     int src = getId();  // our module index
     int dest = intuniform(2, count);
-    if(src == dest){dest++;}
 
     char msgname[20];
     sprintf(msgname, "tic-%d-to-%d", src, dest);
@@ -87,3 +101,20 @@ void Object::refreshDisplay() const
     getDisplayString().setTagArg("t", 0, buf);
 }
 
+
+void Object::finish()
+{
+    // This function is called by OMNeT++ at the end of the simulation.
+    EV << "Sent:     " << numSent << endl;
+    EV << "Received: " << numReceived << endl;
+    EV << "Lost:     " << numLost << endl;
+    EV << "Hop count, min:    " << hopCountStats.getMin() << endl;
+    EV << "Hop count, max:    " << hopCountStats.getMax() << endl;
+    EV << "Hop count, mean:   " << hopCountStats.getMean() << endl;
+    EV << "Hop count, stddev: " << hopCountStats.getStddev() << endl;
+
+    recordScalar("#sent", numSent);
+    recordScalar("#received", numReceived);
+
+    hopCountStats.recordAs("hop count");
+}
