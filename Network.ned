@@ -27,7 +27,7 @@ network Network
             @display("ls=red");
             datarate = 10Gbps;
             delay = 1ms;
-            ber = 1e-10;
+            ber = 0,01;
 
         }
         channel Eth100 extends ned.DatarateChannel

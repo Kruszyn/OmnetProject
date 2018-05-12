@@ -184,6 +184,7 @@ MyMessage::MyMessage(const char *name, short kind) : ::omnetpp::cMessage(name,ki
     this->source = 0;
     this->destination = 0;
     this->hopCount = 0;
+    this->startTime = 0;
 }
 
 MyMessage::MyMessage(const MyMessage& other) : ::omnetpp::cMessage(other)
@@ -208,6 +209,7 @@ void MyMessage::copy(const MyMessage& other)
     this->source = other.source;
     this->destination = other.destination;
     this->hopCount = other.hopCount;
+    this->startTime = other.startTime;
 }
 
 void MyMessage::parsimPack(omnetpp::cCommBuffer *b) const
@@ -216,6 +218,7 @@ void MyMessage::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->source);
     doParsimPacking(b,this->destination);
     doParsimPacking(b,this->hopCount);
+    doParsimPacking(b,this->startTime);
 }
 
 void MyMessage::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -224,6 +227,7 @@ void MyMessage::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->source);
     doParsimUnpacking(b,this->destination);
     doParsimUnpacking(b,this->hopCount);
+    doParsimUnpacking(b,this->startTime);
 }
 
 int MyMessage::getSource() const
@@ -254,6 +258,16 @@ int MyMessage::getHopCount() const
 void MyMessage::setHopCount(int hopCount)
 {
     this->hopCount = hopCount;
+}
+
+::omnetpp::simtime_t MyMessage::getStartTime() const
+{
+    return this->startTime;
+}
+
+void MyMessage::setStartTime(::omnetpp::simtime_t startTime)
+{
+    this->startTime = startTime;
 }
 
 class MyMessageDescriptor : public omnetpp::cClassDescriptor
@@ -321,7 +335,7 @@ const char *MyMessageDescriptor::getProperty(const char *propertyname) const
 int MyMessageDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 3+basedesc->getFieldCount() : 3;
+    return basedesc ? 4+basedesc->getFieldCount() : 4;
 }
 
 unsigned int MyMessageDescriptor::getFieldTypeFlags(int field) const
@@ -336,8 +350,9 @@ unsigned int MyMessageDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
 }
 
 const char *MyMessageDescriptor::getFieldName(int field) const
@@ -352,8 +367,9 @@ const char *MyMessageDescriptor::getFieldName(int field) const
         "source",
         "destination",
         "hopCount",
+        "startTime",
     };
-    return (field>=0 && field<3) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<4) ? fieldNames[field] : nullptr;
 }
 
 int MyMessageDescriptor::findField(const char *fieldName) const
@@ -363,6 +379,7 @@ int MyMessageDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='s' && strcmp(fieldName, "source")==0) return base+0;
     if (fieldName[0]=='d' && strcmp(fieldName, "destination")==0) return base+1;
     if (fieldName[0]=='h' && strcmp(fieldName, "hopCount")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "startTime")==0) return base+3;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -378,8 +395,9 @@ const char *MyMessageDescriptor::getFieldTypeString(int field) const
         "int",
         "int",
         "int",
+        "simtime_t",
     };
-    return (field>=0 && field<3) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<4) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **MyMessageDescriptor::getFieldPropertyNames(int field) const
@@ -449,6 +467,7 @@ std::string MyMessageDescriptor::getFieldValueAsString(void *object, int field, 
         case 0: return long2string(pp->getSource());
         case 1: return long2string(pp->getDestination());
         case 2: return long2string(pp->getHopCount());
+        case 3: return simtime2string(pp->getStartTime());
         default: return "";
     }
 }
@@ -466,6 +485,7 @@ bool MyMessageDescriptor::setFieldValueAsString(void *object, int field, int i, 
         case 0: pp->setSource(string2long(value)); return true;
         case 1: pp->setDestination(string2long(value)); return true;
         case 2: pp->setHopCount(string2long(value)); return true;
+        case 3: pp->setStartTime(string2simtime(value)); return true;
         default: return false;
     }
 }

@@ -18,7 +18,8 @@ class Object : public cSimpleModule{
   long numLost;
   cLongHistogram hopCountStats;
   cOutVector hopCountVector;
-
+  cDoubleHistogram timeStats;
+  cOutVector timeVector;
 
   protected:
     virtual MyMessage *generateMessage();

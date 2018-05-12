@@ -26,6 +26,7 @@
  *     int source;
  *     int destination;
  *     int hopCount = 0;
+ *     simtime_t startTime;
  * }
  * </pre>
  */
@@ -35,6 +36,7 @@ class MyMessage : public ::omnetpp::cMessage
     int source;
     int destination;
     int hopCount;
+    ::omnetpp::simtime_t startTime;
 
   private:
     void copy(const MyMessage& other);
@@ -59,6 +61,8 @@ class MyMessage : public ::omnetpp::cMessage
     virtual void setDestination(int destination);
     virtual int getHopCount() const;
     virtual void setHopCount(int hopCount);
+    virtual ::omnetpp::simtime_t getStartTime() const;
+    virtual void setStartTime(::omnetpp::simtime_t startTime);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const MyMessage& obj) {obj.parsimPack(b);}

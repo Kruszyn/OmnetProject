@@ -48,7 +48,11 @@ void Object::handleMessage(cMessage *msg)
         numReceived++;
         hopCountVector.record(hopcount);
         hopCountStats.collect(hopcount);
+        EV << "UILALALDLSAL" << cSimulation::getActiveSimulation()->getSimTime() << endl;
 
+        simtime_t  msgTime = cSimulation::getActiveSimulation()->getSimTime()-(ttmsg->getStartTime());
+        timeVector.record(msgTime);
+        timeStats.collect(msgTime);
         delete ttmsg;
 
         // Generate another one.
@@ -70,14 +74,16 @@ MyMessage *Object::generateMessage()
     int src = getId();  // our module index
     int dest = intuniform(2, count);
 
+
+
     char msgname[20];
     sprintf(msgname, "tic-%d-to-%d", src, dest);
-
+    simtime_t  simTime = cSimulation::getActiveSimulation()->getSimTime();
     // Create message object and set source and destination field.
     MyMessage *msg = new MyMessage(msgname);
-
     msg->setSource(src);
     msg->setDestination(dest);
+    msg->setStartTime(simTime);
     return msg;
 }
 
@@ -88,8 +94,10 @@ void Object::forwardMessage(MyMessage *msg)
 
     // Same routing as before: random gate.
     int n = gateSize("gate");
+    EV << "GATE SIZE:     " << n << endl;
     int k = intuniform(0, n-1);
-
+    EV << "GATE PICKED:     " << k << endl;
+   // EV <<  gate(k+1)->getTransmissionChannel()-> calculateDuration(msg) << endl;
     EV << "Forwarding message " << msg << " on gate[" << k << "]\n";
     send(msg, "gate$o", k);
 }
@@ -112,7 +120,9 @@ void Object::finish()
     EV << "Hop count, max:    " << hopCountStats.getMax() << endl;
     EV << "Hop count, mean:   " << hopCountStats.getMean() << endl;
     EV << "Hop count, stddev: " << hopCountStats.getStddev() << endl;
-
+    EV << "Min time           " << timeStats.getMin() * 1000<< "ms" <<endl;
+    EV << "Avg time           " << timeStats.getMean()* 1000 << "ms" <<endl;
+    EV << "Max time           " << timeStats.getMax() * 1000 << "ms" << endl;
     recordScalar("#sent", numSent);
     recordScalar("#received", numReceived);
 
