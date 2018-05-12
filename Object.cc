@@ -8,13 +8,18 @@ using namespace omnetpp;
 #include "mymessage_m.h"
 #include "Object.h"
 
+//Network counts as first object with id=1;
 int Object::count = 1;
 
 Define_Module(Object);
 
 void Object::initialize()
 {
-       count++;
+    count++;
+    numSent = 0;
+    numReceived = 0;
+    numLost = 0;
+
    // Module 0 sends the first message
     if (getId() == 2) {
         MyMessage *msg = generateMessage();
@@ -75,4 +80,10 @@ void Object::forwardMessage(MyMessage *msg)
     send(msg, "gate$o", k);
 }
 
+void Object::refreshDisplay() const
+{
+    char buf[40];
+    sprintf(buf, "R: %1d S: %1d L: %1d", numReceived, numSent, numLost);
+    getDisplayString().setTagArg("t", 0, buf);
+}
 

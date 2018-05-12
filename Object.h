@@ -10,14 +10,19 @@
 
 
 class Object : public cSimpleModule{
+
   static int count;
-  int address;
+  //stats
+  long numSent;
+  long numReceived;
+  long numLost;
 
   protected:
     virtual MyMessage *generateMessage();
     virtual void forwardMessage(MyMessage *msg);
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
+    virtual void refreshDisplay() const override;
 };
 
 
