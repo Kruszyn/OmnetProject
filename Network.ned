@@ -49,17 +49,12 @@ network Network
         channel Fiber extends ned.DatarateChannel
         {
             @display("ls=red");
-            datarate = 10Gbps;
             delay = 1ms;
-            ber = 0.01;
-
         }
         channel Eth100 extends ned.DatarateChannel
         {
             @display("ls=blue");
-            datarate = 100Mbps;
             delay = 10ms;
-            per = 1e-10;
         }
 
     submodules:
