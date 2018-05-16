@@ -152,12 +152,34 @@ void Object::forwardMessage(MyMessage *msg)
     // Increment hop count.
     msg->setHopCount(msg->getHopCount()+1);
     // Same routing as before: random gate.
+    int m = 0;
     int n = gateSize("gate");
-    //EV << "GATE SIZE:     " << n << endl;
-    int k = intuniform(0, n-1);
+    if(hasGate("opticGate")) m = gateSize("opticGate");
+    int temp;
+    if(n==0){
+        temp = m;
+        int k = intuniform(0, temp-1);
+        send(msg, "opticGate$o", k);
+    }
+    else if(m==0){
+        temp = n;
+        int k = intuniform(0, temp-1);
+        send(msg, "gate$o", k);
+    }
+    else{
+        if(intuniform(0,1)==1){
+            temp = m;
+            int k = intuniform(0, temp-1);
+            send(msg, "opticGate$o", k);
+        }
+        else{
+            temp = n;
+            int k = intuniform(0, temp-1);
+            send(msg, "gate$o", k);
+        }
+    }
     //EV << "GATE PICKED:     " << k << endl;
     //EV << "Forwarding message " << msg << " on gate[" << k << "]\n";
-    send(msg, "gate$o", k);
 }
 
 void Object::refreshDisplay() const

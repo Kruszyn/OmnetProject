@@ -8,6 +8,8 @@ simple Router extends Object
 {
     parameters:
         @display("i=abstract/router");
+	gates:
+	    inout opticGate[];
 }
 simple Switch extends Object
 {
@@ -46,12 +48,12 @@ network Network
 {
     @display("bgb=911,510;bgl=10");
     types:
-        channel Fiber extends ned.DatarateChannel
+        channel Fiber extends ned.DelayChannel
         {
             @display("ls=red");
             delay = 1ms;
         }
-        channel Eth100 extends ned.DatarateChannel
+        channel Eth100 extends ned.DelayChannel
         {
             @display("ls=blue");
             delay = 10ms;
@@ -93,15 +95,15 @@ network Network
         pc0: PC;
         phone0: Phone;
     connections:
-        backbone0.gate++ <--> Fiber <--> backbone1.gate++;
-        backbone1.gate++ <--> Fiber <--> backbone2.gate++;
-        backbone2.gate++ <--> Fiber <--> backbone3.gate++;
-        backbone3.gate++ <--> Fiber <--> backbone4.gate++;
-        backbone4.gate++ <--> Fiber <--> backbone0.gate++;
+        backbone0.opticGate++ <--> Fiber <--> backbone1.opticGate++;
+        backbone1.opticGate++ <--> Fiber <--> backbone2.opticGate++;
+        backbone2.opticGate++ <--> Fiber <--> backbone3.opticGate++;
+        backbone3.opticGate++ <--> Fiber <--> backbone4.opticGate++;
+        backbone4.opticGate++ <--> Fiber <--> backbone0.opticGate++;
 
-        backbone0.gate++ <--> Fiber <--> edge0.gate++;
-        backbone2.gate++ <--> Fiber <--> edge1.gate++;
-        backbone4.gate++ <--> Fiber <--> edge2.gate++;
+        backbone0.opticGate++ <--> Fiber <--> edge0.opticGate++;
+        backbone2.opticGate++ <--> Fiber <--> edge1.opticGate++;
+        backbone4.opticGate++ <--> Fiber <--> edge2.opticGate++;
 
         edge2.gate++ <--> Eth100 <--> switch0.gate++;
         edge2.gate++ <--> Eth100 <--> switch1.gate++;
