@@ -11,6 +11,8 @@ using namespace omnetpp;
 //Network counts as first object with id=1;
 int Object::count = 1;
 int Object::unicastMessageCount = 0;
+int Object::multicastMessageCount = 0;
+int Object::multicastGroup[] = {7,16,17};
 Define_Module(Object);
 
 void Object::initialize()
@@ -27,11 +29,15 @@ void Object::initialize()
     hopCountStats.setRangeAutoUpper(0, 10, 1.5);
     hopCountVector.setName("HopCount");
 
-   // Module 0 sends the first message
-    if (getId() == unicastSource) {
+
+/*    if (getId() == unicastSource) {
         MyMessage *msg = generateUnicastMessage(false);
         numSent++;
         scheduleAt(0.0, msg);
+    }*/
+
+    if(getId() == multicastSource){
+        sendMulticast();
     }
 }
 
@@ -77,7 +83,7 @@ void Object::decideOnMsgType(MyMessage *msg){
             handleUnicast(msg);
             break;
         case 1:
-            //jakiś kod
+            handleMulticast();
             break;
         case 2:
             //jakiś kod
@@ -113,6 +119,28 @@ void Object::handleUnicast(MyMessage *msg){
     }
 }
 
+void Object::handleMulticast(){
+    bubble("Multicast arrived!");
+}
+
+void Object::sendMulticast(){
+    double timeCounter = 0;
+
+    for(int x=0; x<multicastMessageCountTarget; x++){
+
+        for(int i=0; i<3; i++){
+            MyMessage *msg = generateMessage();
+            msg->setType(1);
+            int z = multicastGroup[i];
+            msg->setDestination(z);
+            scheduleAt(timeCounter, msg);
+            timeCounter+=0.01;
+        }
+        timeCounter++;
+        multicastMessageCount++;
+    }
+}
+
 MyMessage *Object::generateUnicastMessage(bool isResponse){
 
     MyMessage *msg = generateMessage();
@@ -122,6 +150,7 @@ MyMessage *Object::generateUnicastMessage(bool isResponse){
     else{
         msg->setDestination(unicastTarget);
     }
+    msg->setType(0);
     msg->setIsACK(isResponse);
     unicastMessageCount++;
     char msgname[20];
