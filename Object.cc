@@ -37,17 +37,20 @@ void Object::initialize()
         numSent++;
         scheduleAt(0.0, msg);
     }
-
-    if(getId() == multicastSource){
+/*    if(getId() == multicastSource){
         sendMulticast();
-    }
+    }*/
+
+/*    if(getId() == multicastSource){
+        sendMultirate();
+    }*/
 }
 
 void Object::handleMessage(cMessage *msg)
 {
     MyMessage *ttmsg = check_and_cast<MyMessage *>(msg);
 
-    if (uniform(0, 1) < 0.2) {
+    if (uniform(0, 1) < 0) {
         EV << "\"Losing\" message\n";
         numLost++;
         state = FAILURE;
@@ -142,6 +145,17 @@ void Object::sendMulticast(){
         }
         timeCounter++;
         multicastMessageCount++;
+    }
+}
+
+void Object::sendMultirate(){
+
+    for(int i=1; i<5; i++){
+        MyMessage *msg = generateMessage();
+        msg->setKind(i);
+        msg->setDestination(multicastGroup[0]);
+
+        scheduleAt(0.0, msg);
     }
 }
 

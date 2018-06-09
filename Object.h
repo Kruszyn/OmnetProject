@@ -17,6 +17,8 @@ class Object : public cSimpleModule{
   static const int unicastSource = 3;
   static const int unicastMessageCountTarget = 1000;
   static int unicastMessageCount;
+  MyMessage *nextMsg;
+
   static const int multicastSource = 13;
   static int multicastGroup[3];
   static const int multicastMessageCountTarget = 1000;
@@ -41,6 +43,7 @@ class Object : public cSimpleModule{
     void handleUnicast(MyMessage *msg);
     void handleMulticast();
     void sendMulticast();
+    void sendMultirate();
     MyMessage *generateUnicastMessage(bool isResponse);
     virtual MyMessage *generateMessage();
     virtual void forwardMessage(MyMessage *msg);
