@@ -22,6 +22,8 @@ void Object::initialize()
     numReceived = 0;
     numLost = 0;
 
+    state = IDLE;
+
     WATCH(numSent);
     WATCH(numReceived);
 
@@ -30,11 +32,11 @@ void Object::initialize()
     hopCountVector.setName("HopCount");
 
 
-/*    if (getId() == unicastSource) {
+    if (getId() == unicastSource) {
         MyMessage *msg = generateUnicastMessage(false);
         numSent++;
         scheduleAt(0.0, msg);
-    }*/
+    }
 
     if(getId() == multicastSource){
         sendMulticast();
@@ -45,9 +47,11 @@ void Object::handleMessage(cMessage *msg)
 {
     MyMessage *ttmsg = check_and_cast<MyMessage *>(msg);
 
-    if (uniform(0, 1) < 0.001) {
+    if (uniform(0, 1) < 0.2) {
         EV << "\"Losing\" message\n";
         numLost++;
+        state = FAILURE;
+        stateTime = cSimulation::getActiveSimulation()->getSimTime();
         delete msg;
     } else {
 
@@ -56,7 +60,6 @@ void Object::handleMessage(cMessage *msg)
             int hopcount = ttmsg->getHopCount();
             simtime_t  msgTime = cSimulation::getActiveSimulation()->getSimTime()-(ttmsg->getStartTime());
             collectStats(hopcount, msgTime);
-
 
             decideOnMsgType(ttmsg);
             delete ttmsg;
@@ -77,7 +80,7 @@ void Object::collectStats(int hopC, simtime_t time){
 }
 
 void Object::decideOnMsgType(MyMessage *msg){
-    switch( msg->getType() )
+    switch( msg->getKind() )
     {
         case 0:
             handleUnicast(msg);
@@ -130,7 +133,8 @@ void Object::sendMulticast(){
 
         for(int i=0; i<3; i++){
             MyMessage *msg = generateMessage();
-            msg->setType(1);
+            msg->setKind(1);
+
             int z = multicastGroup[i];
             msg->setDestination(z);
             scheduleAt(timeCounter, msg);
@@ -150,7 +154,7 @@ MyMessage *Object::generateUnicastMessage(bool isResponse){
     else{
         msg->setDestination(unicastTarget);
     }
-    msg->setType(0);
+    msg->setKind(0);
     msg->setIsACK(isResponse);
     unicastMessageCount++;
     char msgname[20];
@@ -178,6 +182,9 @@ MyMessage *Object::generateMessage()
 
 void Object::forwardMessage(MyMessage *msg)
 {
+    state = TRANSMIT;
+    stateTime = cSimulation::getActiveSimulation()->getSimTime();
+
     // Increment hop count.
     msg->setHopCount(msg->getHopCount()+1);
     // Same routing as before: random gate.
@@ -207,6 +214,7 @@ void Object::forwardMessage(MyMessage *msg)
             send(msg, "gate$o", k);
         }
     }
+
     //EV << "GATE PICKED:     " << k << endl;
     //EV << "Forwarding message " << msg << " on gate[" << k << "]\n";
 }
@@ -216,8 +224,11 @@ void Object::refreshDisplay() const
     char buf[40];
     sprintf(buf, "R: %1d S: %1d L: %1d", numReceived, numSent, numLost);
     getDisplayString().setTagArg("t", 0, buf);
-}
+    if(state == IDLE) getDisplayString().setTagArg("i", 1, "grey");
+    else if(state == TRANSMIT) getDisplayString().setTagArg("i", 1, "green");
+    else if(state == FAILURE) getDisplayString().setTagArg("i", 1, "red");
 
+}
 
 void Object::finish()
 {

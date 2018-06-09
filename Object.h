@@ -22,6 +22,10 @@ class Object : public cSimpleModule{
   static const int multicastMessageCountTarget = 1000;
   static int multicastMessageCount;
 
+  //state variables
+  enum { IDLE = 0, TRANSMIT = 1, FAILURE = 2 } state;
+  simtime_t  stateTime;
+
   //stats
   long numSent;
   long numReceived;
