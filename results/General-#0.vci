@@ -1,0 +1,27 @@
+file 3809 1528879186                                            
+version 2
+run General-0-20180613-10:39:06-1986
+attr configname General
+attr datetime 20180613-10:39:06
+attr experiment General
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvarsf ""
+attr measurement ""
+attr network Network
+attr processid 1986
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+
+vector 0 Network.switch0 HopCount ETV
+vector 1 Network.switch0 "" ETV
+vector 2 Network.backbone1 HopCount ETV
+vector 3 Network.backbone1 "" ETV
+0	496 783 173 10289 0.757 61.219 45 7 589 7571 1976631
+1	1279 886 173 10289 0.757 61.219 45 0.016 3.064 37.19 53.425194
+2	2165 758 196 10318 0.969 61.383 45 3 185 2746 280038
+3	2923 885 196 10318 0.969 61.383 45 0.012 1.778 24.193 23.602827
+
